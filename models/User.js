@@ -28,3 +28,5 @@ const userSchema = mongoose.Schema({
   refreshToken: String
 
 });
+
+export const User = mongoose.model('User', userSchema);

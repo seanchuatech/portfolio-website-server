@@ -1,36 +1,94 @@
-const getAllUsers = (req, res) => {
-  console.log("Received request to get list of users");
-  res.status(200).send("OK - List of users endpoint"); // Send a basic OK response
+import { User } from '../models/User.js';
+import bcrypt from 'bcrypt';
+import '../config/config.js';
+
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+
+    if (users.length === 0) return res.status(204).json({ 'message': 'No users found' });
+    
+    res.json(users);
+    console.log('what?', users);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ message: error.message });
+    // res.status(500).json({ message: 'Internal server error' }); // Generic error message for the client (production)
+  }
 }
 
-const createNewUser = (req, res) => {
-  console.log("Received request to create user");
-  // Implement logic to handle user creation (e.g., validate data, save to database)
-  res.status(201).send("OK - User created (placeholder)"); // Placeholder response for successful creation
+const createNewUser = async (req, res) => {
+  if (!req?.body?.firstname || !req?.body?.lastname || !req?.body?.username) {
+    return res.status(400).json({ 'message': 'There\'s a missing field!' });
+  }
+
+  // Check for duplicate user in DB
+  const duplicate = await User.findOne({ username: req.body.username}).exec();
+  if (duplicate) return res.sendStatus(409) // Conflict
+
+  try {
+    const defaultPassword = process.env.DATABASE_URL;
+    const hashedPwd = await bcrypt.hash(defaultPassword, 10);
+    
+    const result = await User.create({
+      firstname: req.body.firstname,
+      lastname: req.body.lastname,
+      username: req.body.username,
+      password: hashedPwd
+    });
+
+    res.status(201).json(result);
+  } catch (error) {
+    console.log(error);
+    response.status(500).send({ message: error.message });
+  }
 }
 
-const getUser = (req, res) => {
-  const userId = req.params.id;
-  console.log(`Received request to get user with ID: ${userId}`);
-  // Implement logic to fetch user by ID (e.g., from database)
-  // ...
-  res.status(200).send("OK - User details (placeholder)"); // Placeholder response for user details
+const getUser = async (req, res) => {
+  if (!req?.params?.id) return res.status(400).json({ "message": "User ID required!" });
+  const user = await User.findOne({ _id: req.params.id }).exec();
+
+  res.status(200).json(user);
 }
 
-const updateUser = (req, res) => {
-  const userId = req.params.id;
-  console.log(`Received request to update user with ID: ${userId}`);
-  // Implement logic to update user (e.g., validate data, update database)
-  // ...
-  res.status(200).send("OK - User updated (placeholder)"); // Placeholder response for successful update
+const updateUser = async (req, res) => {
+  if (!req?.params?.id) return res.status(400).json({ "message": "User ID required!" });
+
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, {
+      firstname: req.body.firstname,
+      lastname: req.body.lastname,
+      username: req.body.username
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    return res.status(200).json(user);
+    
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ message: error.message });
+  }
 }
 
-const deleteUser = (req, res) => {
-  const userId = req.params.id;
-  console.log(`Received request to delete user with ID: ${userId}`);
-  // Implement logic to delete user (e.g., delete from database)
-  // ...
-  res.status(200).send("OK - User deleted (placeholder)"); // Placeholder response for successful deletion
+const deleteUser = async (req, res) => {
+  if (!req?.params?.id) return res.status(400).json({ "message": "User ID required!" });
+
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+
+    if (!user) {
+      return res.status(204).json({ "message": `No user matches ID ${req.params.id}.` });
+    }
+
+    return res.status(200).json(user);
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ message: error.message });
+  }
 }
 
 
