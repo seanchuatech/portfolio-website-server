@@ -27,7 +27,7 @@ const createNewUser = async (req, res) => {
   if (duplicate) return res.sendStatus(409) // Conflict
 
   try {
-    const defaultPassword = process.env.DATABASE_URL;
+    const defaultPassword = process.env.DEFAULT_USER_PASSWORD;
     const hashedPwd = await bcrypt.hash(defaultPassword, 10);
     
     const result = await User.create({

@@ -2,7 +2,8 @@ import express from "express";
 import cors from 'cors';
 import mongoose from "mongoose";
 import './config/config.js';
-import usersRoute from "./routes/usersRoute.js"
+import usersRoute from "./routes/usersRoute.js";
+import authRoute from "./routes/authRoute.js";
 
 const app = express();
 const databaseUrl = process.env.DATABASE_URL;
@@ -20,6 +21,7 @@ app.get("/", (req, res) => {
 
 // Routes
 app.use('/users', usersRoute);
+app.use('/auth', authRoute)
 
 // Database and Initialization
 mongoose
