@@ -5,6 +5,7 @@ import './config/config.js';
 import usersRoute from "./routes/usersRoute.js";
 import authRoute from "./routes/authRoute.js";
 import refreshRoute from "./routes/refreshRoute.js";
+import logoutRoute from "./routes/logoutRoute.js";
 import { verifyJWT } from "./middleware/verifyJWT.js";
 import cookieParser from "cookie-parser";
 
@@ -28,6 +29,7 @@ app.get("/", (req, res) => {
 // Routes
 app.use('/auth', authRoute);
 app.use('/refresh', refreshRoute);
+app.use('/logout', logoutRoute);
 
 // Protected routes
 app.use(verifyJWT);
