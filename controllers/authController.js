@@ -1,5 +1,7 @@
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import { User } from '../models/User.js';
+import '../config/config.js';
 
 const handleLogin = async (req, res) => {
  const { username, password } = req.body;
@@ -12,7 +14,30 @@ const handleLogin = async (req, res) => {
   
   if (match) {
     // Create JWT
-    res.json({ 'success': `User ${username} is successfully logged in!` });
+    const accessToken = jwt.sign(
+      {
+        "username": foundUser.username
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: '30s' }
+    );
+    const refreshToken = jwt.sign(
+      {
+        "username": foundUser.username
+      },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: '1d' }
+    );
+    // Saving refreshToken with current user
+    foundUser.refreshToken = refreshToken;
+    const result = await foundUser.save();
+    console.log(result);
+
+    // Creates Secure Cookie with refresh token (1 day)
+    res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
+
+    // Send authorization roles and access token to user
+    res.json({ accessToken }); // Frontend should store this in memory since not safe in localStorage or cookies
   } else {
     res.sendStatus(401);
   }

@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import './config/config.js';
 import usersRoute from "./routes/usersRoute.js";
 import authRoute from "./routes/authRoute.js";
+import { verifyJWT } from "./middleware/verifyJWT.js";
 
 const app = express();
 const databaseUrl = process.env.DATABASE_URL;
@@ -20,8 +21,11 @@ app.get("/", (req, res) => {
 });
 
 // Routes
+app.use('/auth', authRoute);
+
+// Protected routes
+app.use(verifyJWT);
 app.use('/users', usersRoute);
-app.use('/auth', authRoute)
 
 // Database and Initialization
 mongoose
