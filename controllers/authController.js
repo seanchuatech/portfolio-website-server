@@ -34,7 +34,8 @@ const handleLogin = async (req, res) => {
     console.log(result);
 
     // Creates Secure Cookie with refresh token (1 day)
-    res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
+    res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });  // for prod
+    // res.cookie('jwt', refreshToken, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 }); // for testing
 
     // Send authorization roles and access token to user
     res.json({ accessToken }); // Frontend should store this in memory since not safe in localStorage or cookies
