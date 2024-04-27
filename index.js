@@ -23,7 +23,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.get("/", (req, res) => {
-  res.send(port);
+  res.send('Welcome to server! But you shouldn\'t be here.');
 });
 
 // Routes
