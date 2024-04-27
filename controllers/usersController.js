@@ -1,5 +1,6 @@
 import { User } from '../models/User.js';
 import bcrypt from 'bcrypt';
+import mongoose from "mongoose"; // For data validation
 import '../config/config.js';
 
 const getAllUsers = async (req, res) => {
@@ -8,8 +9,8 @@ const getAllUsers = async (req, res) => {
 
     if (users.length === 0) return res.status(204).json({ 'message': 'No users found' });
     
-    res.json(users);
-    console.log('what?', users);
+    res.status(200).json(users);
+    // console.log('what?', users);
   } catch (error) {
     console.log(error);
     res.status(500).send({ message: error.message });
@@ -46,15 +47,34 @@ const createNewUser = async (req, res) => {
 
 const getUser = async (req, res) => {
   if (!req?.params?.id) return res.status(400).json({ "message": "User ID required!" });
-  const user = await User.findOne({ _id: req.params.id }).exec();
+  
+  try {
+    // Validate ID format using Mongoose's ObjectId.isValid()
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid User ID format" });
+    }
 
-  res.status(200).json(user);
+    const user = await User.findById(req.params.id).exec();
+    if (!user) {
+      return res.status(404).json({ message: `User ID ${req.params.id} not found` });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ message: error.message });
+  } 
 }
 
 const updateUser = async (req, res) => {
-  if (!req?.params?.id) return res.status(400).json({ "message": "User ID required!" });
+  if (!req?.params?.id)  return res.status(400).json({ "message": "User ID required!" });
 
   try {
+    // Validate ID format using Mongoose's ObjectId.isValid()
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid User ID format" });
+    }
+
     const user = await User.findByIdAndUpdate(req.params.id, {
       firstname: req.body.firstname,
       lastname: req.body.lastname,
@@ -77,10 +97,15 @@ const deleteUser = async (req, res) => {
   if (!req?.params?.id) return res.status(400).json({ "message": "User ID required!" });
 
   try {
+    // Validate ID format using Mongoose's ObjectId.isValid()
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid User ID format" });
+    }
+
     const user = await User.findByIdAndDelete(req.params.id);
 
     if (!user) {
-      return res.status(204).json({ "message": `No user matches ID ${req.params.id}.` });
+      return res.status(404).json({ "message": `No user matches ID ${req.params.id}.` });
     }
 
     return res.status(200).json(user);
