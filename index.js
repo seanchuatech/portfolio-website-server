@@ -2,6 +2,7 @@ import express from "express";
 import cors from 'cors';
 import mongoose from "mongoose";
 import './config/config.js';
+import {corsOptions} from "./config/corsOptions.js";
 import usersRoute from "./routes/usersRoute.js";
 import authRoute from "./routes/authRoute.js";
 import refreshRoute from "./routes/refreshRoute.js";
@@ -14,7 +15,11 @@ const databaseUrl = process.env.DATABASE_URL;
 const port = process.env.PORT;
 
 // Cross Origin Resource Sharing
-app.use(cors());
+app.use(cors(corsOptions));
+// app.use(cors({
+//   origin: 'http://localhost:5173', // Replace with your frontend origin
+//   credentials: true
+// }));
 
 // Built-in middleware for json 
 app.use(express.json());
