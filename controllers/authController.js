@@ -13,13 +13,14 @@ const handleLogin = async (req, res) => {
   const match = await bcrypt.compare(password, foundUser.password);
   
   if (match) {
+    const userId = foundUser._id;
     // Create JWT
     const accessToken = jwt.sign(
       {
         "username": foundUser.username
       },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: '300s' }
+      { expiresIn: '10m' }
     );
     const refreshToken = jwt.sign(
       {
@@ -38,7 +39,7 @@ const handleLogin = async (req, res) => {
     // res.cookie('jwt', refreshToken, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 }); // for testing
 
     // Send authorization roles and access token to user
-    res.json({ accessToken }); // Frontend should store this in memory since not safe in localStorage or cookies
+    res.json({ userId, accessToken }); // Frontend should store this in memory since not safe in localStorage or cookies
   } else {
     res.sendStatus(401);
   }
