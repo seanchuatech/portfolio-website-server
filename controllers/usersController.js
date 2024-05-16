@@ -1,6 +1,6 @@
 import { User } from '../models/User.js';
 import bcrypt from 'bcrypt';
-import mongoose from "mongoose"; // For data validation
+import mongoose from "mongoose"; 
 import '../config/config.js';
 
 const getAllUsers = async (req, res) => {

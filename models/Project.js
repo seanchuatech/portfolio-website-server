@@ -24,4 +24,4 @@ const projectSchema = mongoose.Schema({
 
 });
 
-export const User = mongoose.model('Project', projectSchema);
+export const Project = mongoose.model('Project', projectSchema);

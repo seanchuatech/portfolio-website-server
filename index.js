@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import './config/config.js';
 import {corsOptions} from "./config/corsOptions.js";
 import usersRoute from "./routes/usersRoute.js";
+import projectsRoute from "./routes/projectsRoute.js";
 import authRoute from "./routes/authRoute.js";
 import refreshRoute from "./routes/refreshRoute.js";
 import logoutRoute from "./routes/logoutRoute.js";
@@ -31,14 +32,15 @@ app.get("/", (req, res) => {
   res.send('Welcome to server! But you shouldn\'t be here.');
 });
 
-// Routes
+// Public Routes
 app.use('/auth', authRoute);
 app.use('/refresh', refreshRoute);
 app.use('/logout', logoutRoute);
 
-// Protected routes
+// Protected Routes
 app.use(verifyJWT);
 app.use('/users', usersRoute);
+app.use('/projects', projectsRoute);
 
 // Database and Initialization
 mongoose
