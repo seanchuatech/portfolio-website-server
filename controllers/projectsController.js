@@ -27,7 +27,6 @@ const createNewProject = async (req, res) => {
   try {
     const result = await Project.create({
       title: req.body.title,
-      lastname: req.body.lastname,
       description: req.body.description,
       imageUrl: req.body.imageUrl,
       githubUrl: req.body.githubUrl,
@@ -41,4 +40,77 @@ const createNewProject = async (req, res) => {
   }
 }
 
-export { getAllProjects, createNewProject }
+const getProject = async (req, res) => {
+  if (!req?.params?.id) return res.status(400).json({ "message": "Project ID required!" });
+  
+  try {
+    // Validate ID format using Mongoose's ObjectId.isValid()
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid User ID format" });
+    }
+
+    const project = await Project.findById(req.params.id).exec();
+    if (!project) {
+      return res.status(404).json({ message: `Project ID ${req.params.id} not found` });
+    }
+
+    res.status(200).json(project);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ message: error.message });
+  } 
+}
+
+const updateProject = async (req, res) => {
+  if (!req?.params?.id)  return res.status(400).json({ "message": "Project ID required!" });
+
+  try {
+    // Validate ID format using Mongoose's ObjectId.isValid()
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid Project ID format" });
+    }
+
+    const project = await Project.findByIdAndUpdate(req.params.id, {
+      title: req.body.title,
+      description: req.body.description,
+      imageUrl: req.body.imageUrl,
+      githubUrl: req.body.githubUrl,
+      techStack: req.body.techStack,
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    return res.status(200).json(project);
+    
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ message: error.message });
+  }
+}
+
+const deleteProject = async (req, res) => {
+  if (!req?.params?.id) return res.status(400).json({ "message": "Project ID required!" });
+
+  try {
+    // Validate ID format using Mongoose's ObjectId.isValid()
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid Project ID format" });
+    }
+
+    const project = await Project.findByIdAndDelete(req.params.id);
+
+    if (!project) {
+      return res.status(404).json({ "message": `No project matches ID ${req.params.id}.` });
+    }
+
+    return res.status(200).json(project);
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ message: error.message });
+  }
+}
+
+export { getAllProjects, createNewProject, getProject, updateProject, deleteProject }
